@@ -6,6 +6,9 @@ import tensorflow as tf
 import importlib
 from data.dataset import Dataset
 from util import Configurator, tool
+import os
+import shutil
+from os.path import dirname, abspath
 
 
 # np.random.seed(2018)
@@ -14,11 +17,7 @@ from util import Configurator, tool
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 if __name__ == "__main__":
-    is_windows = sys.platform.startswith('win')
-    if is_windows:
-        root_folder = 'D:/OneDrive - mail.ustc.edu.cn/PythonProjects/SGL/'
-    else:
-        root_folder = '/home/wujc/PythonProjects/SGL/'
+    root_folder = str(abspath(dirname(__file__)).split("SGL")[0]) + "SGL/"
     conf = Configurator(root_folder + "NeuRec.properties", default_section="hyperparameters")
     seed = conf["seed"]
     print('seed=', seed)
@@ -37,14 +36,14 @@ if __name__ == "__main__":
     with tf.Session(config=config) as sess:
         if importlib.util.find_spec("model.general_recommender." + recommender) is not None:
             my_module = importlib.import_module("model.general_recommender." + recommender)
-            
+
         elif importlib.util.find_spec("model.social_recommender." + recommender) is not None:
-            
+
             my_module = importlib.import_module("model.social_recommender." + recommender)
-            
+
         else:
             my_module = importlib.import_module("model.sequential_recommender." + recommender)
-        
+
         MyClass = getattr(my_module, recommender)
         model = MyClass(sess, dataset, conf)
 
